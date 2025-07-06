@@ -34,15 +34,15 @@ get_config() {
 
 # Получение версий
 get_installed_version() {
-    if command -v nexus &> /dev/null; then
-        nexus version 2>/dev/null | head -n1 | cut -d' ' -f2 || echo ""
+    if [ -f "$HOME/.nexus/bin/nexus-network" ]; then
+        $HOME/.nexus/bin/nexus-network --version 2>/dev/null | sed 's/nexus-network //' | sed 's/^v//' || echo ""
     else
         echo ""
     fi
 }
 
 get_latest_version() {
-    curl -s https://api.github.com/repos/nexus-xyz/nexus-cli/releases/latest | jq -r .tag_name 2>/dev/null || echo ""
+    curl -s https://api.github.com/repos/nexus-xyz/nexus-cli/releases/latest 2>/dev/null | grep '"tag_name":' | sed 's/.*"tag_name": "v\?\(.*\)".*/\1/' || echo ""
 }
 
 # Основная логика
