@@ -5,8 +5,8 @@
 
 # Получение установленной версии Nexus CLI
 nexus_get_installed_version() {
-    if command -v nexus &> /dev/null; then
-        nexus version 2>/dev/null | head -n1 | cut -d' ' -f2 || echo ""
+    if [ -f "$HOME/.nexus/bin/nexus-network" ]; then
+        $HOME/.nexus/bin/nexus-network --version 2>/dev/null | sed 's/nexus-network //' | sed 's/^v//' || echo ""
     else
         echo ""
     fi
@@ -14,35 +14,47 @@ nexus_get_installed_version() {
 
 # Получение последней версии Nexus CLI с GitHub
 nexus_get_latest_version() {
-    curl -s https://api.github.com/repos/nexus-xyz/nexus-cli/releases/latest | jq -r .tag_name 2>/dev/null || echo ""
+    curl -s https://api.github.com/repos/nexus-xyz/nexus-cli/releases/latest 2>/dev/null | grep '"tag_name":' | sed 's/.*"tag_name": "v\?\(.*\)".*/\1/' || echo ""
 }
 
-# Установка Nexus CLI
+# Установка Nexus CLI (интерактивная)
 nexus_install() {
     core_status "Устанавливаем Nexus CLI..."
     
-    # Скачиваем и устанавливаем Nexus CLI
-    if curl -sSL https://raw.githubusercontent.com/nexus-xyz/nexus-cli/main/install.sh | bash; then
-        core_result "Nexus CLI успешно установлен"
-        
-        # Добавляем в PATH если необходимо
-        if ! command -v nexus &> /dev/null; then
-            export PATH="$HOME/.nexus/bin:$PATH"
-            echo 'export PATH="$HOME/.nexus/bin:$PATH"' >> ~/.bashrc
+    # Интерактивная установка для первого раза
+    if curl -sSL https://cli.nexus.xyz/ | sh; then
+        # Проверяем успешность установки
+        if [ -f "$HOME/.nexus/bin/nexus-network" ]; then
+            local new_version=$($HOME/.nexus/bin/nexus-network --version 2>/dev/null | sed 's/nexus-network //' | sed 's/^v//')
+            core_result "Nexus CLI успешно установлен (версия $new_version)"
+        else
+            core_exit_error "Ошибка: исполняемый файл не найден после установки"
         fi
     else
         core_exit_error "Ошибка установки Nexus CLI"
     fi
 }
 
-# Обновление Nexus CLI
+# Обновление Nexus CLI (неинтерактивное)
 nexus_update() {
     core_status "Обновляем Nexus CLI..."
     
-    # Неинтерактивный режим обновления
-    if NEXUS_NON_INTERACTIVE=1 curl -sSL https://raw.githubusercontent.com/nexus-xyz/nexus-cli/main/install.sh | bash; then
-        core_result "Nexus CLI успешно обновлен"
+    # Скачиваем установочный скрипт и запускаем в неинтерактивном режиме
+    if curl -sSf https://cli.nexus.xyz/ -o /tmp/nexus_install.sh && \
+       chmod +x /tmp/nexus_install.sh && \
+       NONINTERACTIVE=1 /tmp/nexus_install.sh; then
+        # Очищаем временный файл
+        rm -f /tmp/nexus_install.sh
+        
+        # Проверяем успешность обновления
+        if [ -f "$HOME/.nexus/bin/nexus-network" ]; then
+            local new_version=$($HOME/.nexus/bin/nexus-network --version 2>/dev/null | sed 's/nexus-network //' | sed 's/^v//')
+            core_result "Nexus CLI успешно обновлен (версия $new_version)"
+        else
+            core_exit_error "Ошибка: исполняемый файл не найден после обновления"
+        fi
     else
+        rm -f /tmp/nexus_install.sh
         core_exit_error "Ошибка обновления Nexus CLI"
     fi
 }
