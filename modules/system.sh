@@ -24,10 +24,6 @@ system_check_dependencies() {
     else
         core_result "jq уже установлен"
     fi
-        missing_deps+=("jq")
-    else
-        core_result "jq уже установлен"
-    fi
     
     # Установка недостающих зависимостей
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
