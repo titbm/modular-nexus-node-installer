@@ -76,14 +76,10 @@ swap_manage() {
     
     # 3. Спрашиваем пользователя о размере файла подкачки
     echo ""
-    local swap_size=""
-    while [[ -z "$swap_size" ]]; do
-        echo -n "Укажите размер файла подкачки в ГБ (Enter = 12ГБ, 0 = не создавать): "
-        read swap_size
-        if [[ -z "$swap_size" ]]; then
-            swap_size="12"
-        fi
-    done
+    echo "Размер файла подкачки в ГБ (Enter = 12ГБ, 0 = не создавать): "
+    local swap_size
+    read swap_size </dev/tty
+    swap_size=${swap_size:-12}
     
     # 4. Выводим сообщение о выборе пользователя
     echo ""
