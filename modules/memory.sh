@@ -23,6 +23,11 @@ memory_get_swap_info() {
     local swap_used_mb=$(free -m | awk 'NR==3{print $3}')
     local swap_free_mb=$(free -m | awk 'NR==3{print $4}')
     
+    # Если swap_free_mb пустой или неверный, вычисляем как разность
+    if [[ -z "$swap_free_mb" || "$swap_free_mb" -eq 0 ]] && [[ "$swap_total_mb" -gt 0 ]]; then
+        swap_free_mb=$((swap_total_mb - swap_used_mb))
+    fi
+    
     local swap_total_gb=$((swap_total_mb / 1024))
     local swap_used_gb=$((swap_used_mb / 1024))
     local swap_free_gb=$((swap_free_mb / 1024))
@@ -86,10 +91,18 @@ memory_display_info() {
     printf "├─────────┼─────────┼───────────┤\n"
     
     if [[ $swap_total_mb -gt 0 ]]; then
+        # Для больших значений показываем в гигабайтах, для маленьких в мегабайтах
+        local swap_free_display
+        if [[ $swap_free_mb -gt 1024 ]]; then
+            swap_free_display="${swap_free_gb}Гб"
+        else
+            swap_free_display="${swap_free_mb}Мб"
+        fi
+        
         printf "│ %-7s │ %-7s │ %-9s │\n" \
             "${swap_total_gb}Гб" \
             "${swap_used_mb}Мб" \
-            "${swap_free_mb}Мб"
+            "$swap_free_display"
     else
         printf "│ %-7s │ %-7s │ %-9s │\n" "0Гб" "0Мб" "0Мб"
     fi
