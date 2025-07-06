@@ -17,17 +17,23 @@ system_check_dependencies() {
         core_result "tmux уже установлен"
     fi
     
-    # Проверка curl
+    # Проверка curl (требуется для загрузки модулей и API запросов)
     core_status "Проверяем наличие curl..."
     if ! command -v curl &> /dev/null; then
+        # Теоретически curl должен быть, так как скрипт запускается через curl
+        # Но проверяем на случай локального запуска
         missing_deps+=("curl")
     else
         core_result "curl уже установлен"
     fi
     
-    # Проверка jq
+    # Проверка jq (требуется для работы с JSON конфигурацией и GitHub API)
     core_status "Проверяем наличие jq..."
     if ! command -v jq &> /dev/null; then
+        missing_deps+=("jq")
+    else
+        core_result "jq уже установлен"
+    fi
         missing_deps+=("jq")
     else
         core_result "jq уже установлен"
