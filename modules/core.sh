@@ -33,10 +33,10 @@ core_block_header() {
     echo ""
 }
 
-# Задача с галочкой
+# Задача с галочкой (белый цвет)
 core_task() {
     local task="$1"
-    printf "${CORE_GREEN}✅ %s${CORE_NC}\n" "$task"
+    printf "✅ %s\n" "$task"
 }
 
 # Статус выполнения
@@ -45,10 +45,10 @@ core_status() {
     printf "${CORE_YELLOW}%s${CORE_NC}\n" "$status"
 }
 
-# Результат выполнения процесса
+# Результат выполнения процесса (белый цвет)
 core_result() {
     local result="$1"
-    printf "${CORE_GREEN}✅ %s${CORE_NC}\n" "$result"
+    printf "✅ %s\n" "$result"
 }
 
 # Ошибка
