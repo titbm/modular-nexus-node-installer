@@ -16,17 +16,19 @@ node_start() {
     
     core_status "Запускаем Nexus CLI в фоновом режиме с ID: $nexus_id"
     
-    # Проверяем, что nexus доступен
-    if ! command -v nexus &> /dev/null; then
-        # Пытаемся добавить в PATH
-        export PATH="$HOME/.nexus/bin:$PATH"
-        if ! command -v nexus &> /dev/null; then
+    # Проверяем, что nexus-network доступен
+    if ! command -v nexus-network &> /dev/null; then
+        # Пытаемся найти в стандартном месте
+        if [ -f "$HOME/.nexus/bin/nexus-network" ]; then
+            export PATH="$HOME/.nexus/bin:$PATH"
+            core_status "Добавлен путь к Nexus CLI в PATH"
+        else
             core_exit_error "Nexus CLI не найден в PATH"
         fi
     fi
     
     # Создаем новую tmux сессию с именем nexus
-    if tmux new-session -d -s nexus "nexus start --node-id $nexus_id"; then
+    if tmux new-session -d -s nexus "$HOME/.nexus/bin/nexus-network start --node-id $nexus_id"; then
         core_result "Nexus CLI успешно запущен в tmux сессии 'nexus'"
         
         # Ждем немного и проверяем, что сессия все еще активна
