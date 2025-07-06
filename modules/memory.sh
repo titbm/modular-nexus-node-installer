@@ -39,26 +39,6 @@ memory_get_swap_info() {
 memory_display_info() {
     core_task "Получить информацию об оперативной памяти сервера"
     
-    core_status "Получаем информацию о памяти..."
-    
-    local memory_info=($(memory_get_info))
-    local total_ram_mb=${memory_info[0]}
-    local used_ram_mb=${memory_info[1]}
-    local available_ram_mb=${memory_info[2]}
-    local total_ram_gb=${memory_info[3]}
-    local used_ram_gb=${memory_info[4]}
-    local available_ram_gb=${memory_info[5]}
-    
-    local swap_info=($(memory_get_swap_info))
-    local swap_total_mb=${swap_info[0]}
-    local swap_used_mb=${swap_info[1]}
-    local swap_free_mb=${swap_info[2]}
-    local swap_total_gb=${swap_info[3]}
-    local swap_used_gb=${swap_info[4]}
-    local swap_free_gb=${swap_info[5]}
-    
-    echo ""
-    core_user_instruction "Текущее состояние памяти:"
     echo ""
     
     # Эталонная таблица по методике из nexus-install-example.sh
