@@ -60,26 +60,24 @@ memory_display_info() {
     echo ""
     core_user_instruction "Текущее состояние памяти:"
     
-    # Простая компактная таблица как на скриншоте
-    printf "+-------------+----------+----------+----------+\n"
-    printf "| %-11s | %-8s | %-8s | %-8s |\n" "Память" "Всего" "Занято" "Свободно"
-    printf "+-------------+----------+----------+----------+\n"
-    printf "| %-11s | %-8s | %-8s | %-8s |\n" "ОЗУ (RAM)" "${total_ram_gb}Гб" "${used_ram_mb}Мб" "${available_ram_gb}Гб"
+    # Точная копия таблицы с вашего скриншота
+    printf "+----------------+----------+----------+----------+\n"
+    printf "| %-14s | %-8s | %-8s | %-8s |\n" "Память" "Всего" "Занято" "Свободно"
+    printf "+----------------+----------+----------+----------+\n"
+    printf "| %-14s | %-8s | %-8s | %-8s |\n" "ОЗУ (RAM)" "${total_ram_gb}Гб" "${used_ram_mb}Мб" "${available_ram_gb}Гб"
     
     if [[ $swap_total_mb -gt 0 ]]; then
-        # Для swap показываем правильные единицы
-        local swap_free_display
-        if [[ $swap_free_mb -gt 1024 ]]; then
-            swap_free_display="${swap_free_gb}Гб"
-        else
+        # Правильный расчет свободного места
+        local swap_free_display="${swap_free_gb}Гб"
+        if [[ $swap_free_mb -lt 1024 ]]; then
             swap_free_display="${swap_free_mb}Мб"
         fi
-        printf "| %-11s | %-8s | %-8s | %-8s |\n" "Подкачка (Swap)" "${swap_total_gb}Гб" "${swap_used_mb}Мб" "$swap_free_display"
+        printf "| %-14s | %-8s | %-8s | %-8s |\n" "Подкачка (Swap)" "${swap_total_gb}Гб" "${swap_used_mb}Мб" "$swap_free_display"
     else
-        printf "| %-11s | %-8s | %-8s | %-8s |\n" "Подкачка (Swap)" "0Гб" "0Мб" "0Гб"
+        printf "| %-14s | %-8s | %-8s | %-8s |\n" "Подкачка (Swap)" "0Гб" "0Мб" "0Гб"
     fi
     
-    printf "+-------------+----------+----------+----------+\n"
+    printf "+----------------+----------+----------+----------+\n"
     echo ""
     
     core_result "Информация о памяти получена"
