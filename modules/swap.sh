@@ -69,44 +69,46 @@ swap_remove() {
 swap_manage() {
     core_task "Управление файлом подкачки"
     
-    local current_swap_exists=false
-    if swap_check_exists; then
-        current_swap_exists=true
-    fi
+    # 1. Проверяем текущее состояние памяти
+    core_status "Получаем текущую информацию о памяти..."
     
+    # 2. Выводим состояние памяти пользователю
     echo ""
-    if [[ "$current_swap_exists" == true ]]; then
-        core_user_instruction "Обнаружен существующий файл подкачки"
-    else
-        core_user_instruction "Файл подкачки не настроен"
-    fi
-    echo ""
+    core_user_instruction "Текущее состояние памяти:"
+    memory_display_info
     
+    # 3. Спрашиваем пользователя о размере файла подкачки
+    echo ""
     local swap_size
-    read -p "Введите размер файла подкачки в Гб (по умолчанию 12, 0 - не использовать): " swap_size
+    read -p "Укажите размер файла подкачки в ГБ (Enter = 12ГБ, 0 = не создавать): " swap_size
     swap_size=${swap_size:-12}
     
+    # 4. Выводим сообщение о выборе пользователя
+    echo ""
     if [[ "$swap_size" == "0" ]]; then
-        if [[ "$current_swap_exists" == true ]]; then
-            swap_remove
-        fi
-        core_result "Файл подкачки не будет использоваться"
+        core_user_instruction "Выбрано: Не использовать файл подкачки"
     else
         # Проверяем корректность ввода
         if [[ ! "$swap_size" =~ ^[0-9]+$ ]] || [[ "$swap_size" -lt 1 ]]; then
             core_exit_error "Некорректный размер файла подкачки: $swap_size"
         fi
-        
-        # Удаляем существующий файл подкачки
-        if [[ "$current_swap_exists" == true ]]; then
-            swap_remove
-        fi
-        
-        # Создаем новый файл подкачки
+        core_user_instruction "Выбрано: Создать файл подкачки размером ${swap_size}ГБ"
+    fi
+    
+    # 5. Удаляем текущий файл подкачки (если существует)
+    if swap_check_exists; then
+        swap_remove
+    fi
+    
+    # 6. Создаем новый файл подкачки по запросу пользователя
+    if [[ "$swap_size" != "0" ]]; then
         swap_create "$swap_size"
     fi
     
+    # 7. Выводим обновленное состояние памяти
     echo ""
-    core_status "Получаем текущую информацию о памяти..."
+    core_status "Получаем обновленную информацию о памяти..."
+    echo ""
+    core_user_instruction "Обновленное состояние памяти:"
     memory_display_info
 }
