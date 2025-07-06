@@ -15,28 +15,39 @@ swap_create() {
     
     core_status "Создаем файл подкачки размером ${size_gb}Гб..."
     
-    # Проверяем доступное дисковое пространство
-    if ! memory_check_disk_space "$size_gb"; then
-        core_exit_error "Недостаточно свободного места на диске для создания файла подкачки размером ${size_gb}Гб"
+    # Проверяем доступное дисковое пространство (как в эталоне)
+    local available_space=$(df / | awk 'NR==2 {print int($4/1024/1024)}')
+    local required_space=$((size_gb + 1))  # Add 1GB buffer
+    
+    if [[ $available_space -lt $required_space ]]; then
+        core_exit_error "Недостаточно свободного места. Доступно: ${available_space}ГБ, требуется: ${required_space}ГБ (${size_gb}ГБ + 1ГБ буфер)"
     fi
     
     # Создаем файл подкачки
-    if sudo fallocate -l "${size_gb}G" "$swap_file" 2>/dev/null || sudo dd if=/dev/zero of="$swap_file" bs=1G count="$size_gb" 2>/dev/null; then
+    if sudo fallocate -l "${size_gb}G" "$swap_file" 2>/dev/null; then
         # Устанавливаем права доступа
-        sudo chmod 600 "$swap_file" || core_exit_error "Ошибка установки прав доступа для файла подкачки"
-        
-        # Создаем файловую систему подкачки
-        sudo mkswap "$swap_file" || core_exit_error "Ошибка создания файловой системы подкачки"
-        
-        # Включаем файл подкачки
-        sudo swapon "$swap_file" || core_exit_error "Ошибка включения файла подкачки"
-        
-        # Добавляем в fstab для автоматического подключения
-        if ! grep -q "$swap_file" /etc/fstab; then
-            echo "$swap_file none swap sw 0 0" | sudo tee -a /etc/fstab > /dev/null
+        if sudo chmod 600 "$swap_file"; then
+            # Создаем файловую систему подкачки
+            if sudo mkswap "$swap_file" 2>/dev/null; then
+                # Включаем файл подкачки
+                if sudo swapon "$swap_file" 2>/dev/null; then
+                    # Добавляем в fstab для автоматического подключения
+                    if ! grep -q "$swap_file" /etc/fstab; then
+                        echo "$swap_file none swap sw 0 0" | sudo tee -a /etc/fstab > /dev/null
+                    fi
+                    core_result "Файл подкачки размером ${size_gb}Гб успешно создан"
+                else
+                    sudo rm -f "$swap_file" 2>/dev/null || true
+                    core_exit_error "Ошибка при активации файла подкачки"
+                fi
+            else
+                sudo rm -f "$swap_file" 2>/dev/null || true
+                core_exit_error "Ошибка при инициализации файла подкачки"
+            fi
+        else
+            sudo rm -f "$swap_file" 2>/dev/null || true
+            core_exit_error "Ошибка при установке прав доступа для файла подкачки"
         fi
-        
-        core_result "Файл подкачки размером ${size_gb}Гб успешно создан"
     else
         core_exit_error "Ошибка создания файла подкачки"
     fi
