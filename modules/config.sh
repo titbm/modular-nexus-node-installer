@@ -17,7 +17,7 @@ config_load() {
 # Сохранение значения в конфигурацию
 config_save() {
     local key="$1"
-    local value="$2"
+    local value="${2:-}"
     
     # Создаем или обновляем JSON файл
     if [[ -f "$CONFIG_FILE" ]]; then
