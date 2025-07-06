@@ -22,6 +22,15 @@ load_module() {
     fi
 }
 
+# Предварительная проверка curl (нужен для загрузки модулей)
+if ! command -v curl &> /dev/null; then
+    echo "❌ curl не найден. Он необходим для загрузки модулей."
+    echo "Установите curl и повторите попытку:"
+    echo "  Ubuntu/Debian: sudo apt install curl"
+    echo "  CentOS/RHEL: sudo yum install curl"
+    exit 1
+fi
+
 # Загрузка всех модулей
 echo "Загружаем модули..."
 for module in core config system memory swap nexus node automation; do

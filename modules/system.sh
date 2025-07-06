@@ -3,7 +3,7 @@
 # system.sh — проверка системы и зависимостей
 # Экспортируемые функции: system_check_dependencies, system_check_tmux_sessions
 
-# Проверка зависимостей
+# Проверка зависимостей (curl проверяется в основном скрипте)
 system_check_dependencies() {
     core_task "Проверить наличие необходимых зависимостей"
     
@@ -15,16 +15,6 @@ system_check_dependencies() {
         missing_deps+=("tmux")
     else
         core_result "tmux уже установлен"
-    fi
-    
-    # Проверка curl (требуется для загрузки модулей и API запросов)
-    core_status "Проверяем наличие curl..."
-    if ! command -v curl &> /dev/null; then
-        # Теоретически curl должен быть, так как скрипт запускается через curl
-        # Но проверяем на случай локального запуска
-        missing_deps+=("curl")
-    else
-        core_result "curl уже установлен"
     fi
     
     # Проверка jq (требуется для работы с JSON конфигурацией и GitHub API)
