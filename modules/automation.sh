@@ -85,7 +85,7 @@ main() {
     
     # Запускаем новую версию
     sleep 5
-    tmux new-session -d -s nexus "nexus start --node-id $nexus_id"
+    tmux new-session -d -s nexus "$HOME/.nexus/bin/nexus-network start --node-id $nexus_id"
     
     # Восстанавливаем задания на перезапуск
     if [[ -n "$restart_interval" && "$restart_interval" != "0" ]]; then
@@ -149,7 +149,7 @@ main() {
     
     # Запускаем новую сессию
     export PATH="$HOME/.nexus/bin:$PATH"
-    tmux new-session -d -s nexus "nexus start --node-id $nexus_id"
+    tmux new-session -d -s nexus "$HOME/.nexus/bin/nexus-network start --node-id $nexus_id"
     
     echo "Nexus CLI перезапущен с ID: $nexus_id"
 }
