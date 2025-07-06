@@ -59,25 +59,34 @@ memory_display_info() {
     
     echo ""
     core_user_instruction "Текущее состояние памяти:"
+    echo ""
     
-    # Красивая таблица с Unicode рамками как на скриншоте
-    printf "┌────────────────┬──────────┬──────────┬──────────┐\n"
-    printf "│ %-14s │ %-8s │ %-8s │ %-8s │\n" "Память" "Всего" "Занято" "Свободно"
-    printf "├────────────────┼──────────┼──────────┼──────────┤\n"
-    printf "│ %-14s │ %-8s │ %-8s │ %-8s │\n" "ОЗУ (RAM)" "${total_ram_gb}Гб" "${used_ram_mb}Мб" "${available_ram_gb}Гб"
+    # Эталонная таблица по методике из nexus-install-example.sh
+    echo "┌──────────────────┬──────────┬──────────┬──────────┐"
+    echo "│      Память      │  Всего   │  Занято  │ Свободно │"
+    echo "├──────────────────┼──────────┼──────────┼──────────┤"
     
-    if [[ $swap_total_mb -gt 0 ]]; then
-        # Правильный расчет свободного места
-        local swap_free_display="${swap_free_gb}Гб"
-        if [[ $swap_free_mb -lt 1024 ]]; then
-            swap_free_display="${swap_free_mb}Мб"
-        fi
-        printf "│ %-14s │ %-8s │ %-8s │ %-8s │\n" "Подкачка (Swap)" "${swap_total_gb}Гб" "${swap_used_mb}Мб" "$swap_free_display"
-    else
-        printf "│ %-14s │ %-8s │ %-8s │ %-8s │\n" "Подкачка (Swap)" "0Гб" "0Мб" "0Гб"
-    fi
+    # Get memory info and format it with Russian units (как в эталоне)
+    free -h | awk '
+    /^Mem:/ {
+        # Convert units to Russian
+        total = $2; gsub(/Gi/, "Гб", total); gsub(/Mi/, "Мб", total); gsub(/Ki/, "Кб", total);
+        used = $3; gsub(/Gi/, "Гб", used); gsub(/Mi/, "Мб", used); gsub(/Ki/, "Кб", used);
+        free = $4; gsub(/Gi/, "Гб", free); gsub(/Mi/, "Мб", free); gsub(/Ki/, "Кб", free);
+        available = $7; gsub(/Gi/, "Гб", available); gsub(/Mi/, "Мб", available); gsub(/Ki/, "Кб", available);
+        
+        printf "│ ОЗУ (RAM)        │ %8s │ %8s │ %8s │\n", total, used, available
+    }
+    /^Swap:/ {
+        # Convert units to Russian for swap
+        total = $2; gsub(/Gi/, "Гб", total); gsub(/Mi/, "Мб", total); gsub(/Ki/, "Кб", total);
+        used = $3; gsub(/Gi/, "Гб", used); gsub(/Mi/, "Мб", used); gsub(/Ki/, "Кб", used);
+        free = $4; gsub(/Gi/, "Гб", free); gsub(/Mi/, "Мб", free); gsub(/Ki/, "Кб", free);
+        
+        printf "│ Подкачка (Swap)  │ %8s │ %8s │ %8s │\n", total, used, free
+    }'
     
-    printf "└────────────────┴──────────┴──────────┴──────────┘\n"
+    echo "└──────────────────┴──────────┴──────────┴──────────┘"
     echo ""
     
     core_result "Информация о памяти получена"
