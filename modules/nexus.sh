@@ -81,7 +81,8 @@ nexus_check_and_install() {
         core_user_instruction "Последняя версия: $latest_version (доступно обновление)"
         echo ""
         
-        read -p "Обновить до последней версии? (y/n, по умолчанию n): " update_choice
+        echo "Обновить до последней версии? (y/n, по умолчанию n): "
+        read update_choice </dev/tty
         update_choice=${update_choice:-n}
         
         if [[ "$update_choice" =~ ^[Yy]$ ]]; then
