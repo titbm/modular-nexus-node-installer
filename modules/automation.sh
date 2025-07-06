@@ -181,7 +181,8 @@ automation_setup() {
     
     # Настройка автообновления
     echo ""
-    read -p "Включить автообновление версии ноды? (y/n, по умолчанию y): " auto_update
+    echo "Включить автообновление версии ноды? (y/n, по умолчанию y): "
+    read auto_update </dev/tty
     auto_update=${auto_update:-y}
     
     if [[ "$auto_update" =~ ^[Yy]$ ]]; then
@@ -192,7 +193,8 @@ automation_setup() {
     
     # Настройка перезапуска
     echo ""
-    read -p "Как часто перезапускать ноду (в минутах, по умолчанию не перезапускать)? " restart_interval
+    echo "Как часто перезапускать ноду (в минутах, по умолчанию не перезапускать)? "
+    read restart_interval </dev/tty
     
     if [[ -n "$restart_interval" && "$restart_interval" =~ ^[0-9]+$ && "$restart_interval" -gt 0 ]]; then
         automation_setup_restart "$restart_interval"

@@ -55,7 +55,8 @@ config_get_nexus_id() {
         echo ""
         core_user_instruction "Найден сохраненный Nexus ID: $saved_nexus_id"
         echo ""
-        read -p "Использовать сохраненный ID? (y/n, по умолчанию y): " use_saved
+        echo "Использовать сохраненный ID? (y/n, по умолчанию y): "
+        read use_saved </dev/tty
         use_saved=${use_saved:-y}
         
         if [[ "$use_saved" =~ ^[Yy]$ ]]; then
@@ -73,7 +74,8 @@ config_get_nexus_id() {
     
     local nexus_id
     while true; do
-        read -p "Введите ваш Nexus ID: " nexus_id
+        echo "Введите ваш Nexus ID: "
+        read nexus_id </dev/tty
         if [[ -n "$nexus_id" ]]; then
             config_save "nexus_id" "$nexus_id"
             core_result "Nexus ID сохранен: $nexus_id"
