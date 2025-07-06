@@ -56,17 +56,25 @@ memory_display_info() {
     core_user_instruction "Текущее состояние оперативной памяти:"
     
     # Красивая таблица для оперативной памяти
+    # Получаем дополнительные данные от free -m
+    local buffer_cache_mb=$(free -m | awk 'NR==2{print $6}')
+    local shared_mb=$(free -m | awk 'NR==2{print $5}')
+    
+    # Вычисляем правильные дроби для гигабайт
+    local total_ram_fraction=$(( (total_ram_mb % 1024) * 10 / 1024 ))
+    local available_ram_fraction=$(( (available_ram_mb % 1024) * 10 / 1024 ))
+    
     printf "┌─────────┬─────────┬───────────┬────────┬──────────┬───────────┐\n"
     printf "│ %-7s │ %-7s │ %-9s │ %-6s │ %-8s │ %-9s │\n" "Всего" "Занято" "Свободно" "Общее" "Буфер/" "Доступно"
     printf "│         │         │           │        │ Кеш      │           │\n"
     printf "├─────────┼─────────┼───────────┼────────┼──────────┼───────────┤\n"
     printf "│ %-7s │ %-7s │ %-9s │ %-6s │ %-8s │ %-9s │\n" \
-        "${total_ram_gb}.${total_ram_mb##*.}Гб" \
-        "${used_ram_gb}Мб" \
-        "${available_ram_gb}.${available_ram_mb##*.}Гб" \
-        "1.1Мб" \
-        "255Мб" \
-        "${available_ram_gb}.${available_ram_mb##*.}Гб"
+        "${total_ram_gb}.${total_ram_fraction}Гб" \
+        "${used_ram_mb}Мб" \
+        "${available_ram_gb}.${available_ram_fraction}Гб" \
+        "${shared_mb}Мб" \
+        "${buffer_cache_mb}Мб" \
+        "${available_ram_gb}.${available_ram_fraction}Гб"
     printf "└─────────┴─────────┴───────────┴────────┴──────────┴───────────┘\n"
     
     echo ""
@@ -81,9 +89,9 @@ memory_display_info() {
         printf "│ %-7s │ %-7s │ %-9s │\n" \
             "${swap_total_gb}Гб" \
             "${swap_used_mb}Мб" \
-            "${swap_total_gb}Гб"
+            "${swap_free_mb}Мб"
     else
-        printf "│ %-7s │ %-7s │ %-9s │\n" "0Гб" "0Мб" "0Гб"
+        printf "│ %-7s │ %-7s │ %-9s │\n" "0Гб" "0Мб" "0Мб"
     fi
     
     printf "└─────────┴─────────┴───────────┘\n"
