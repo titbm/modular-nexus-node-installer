@@ -37,7 +37,7 @@ core_block_header "ПРОВЕРКА СУЩЕСТВУЮЩИХ ПРОЦЕССОВ"
 # Проверка зависимостей
 system_check_dependencies
 
-core_block_header "Поиск и завершение текущих сеансов Nexus CLI"
+core_block_header "ПОИСК И ЗАВЕРШЕНИЕ ТЕКУЩИХ СЕАНСОВ NEXUS CLI"
 
 # Проверка и остановка запущенных сессий
 system_check_tmux_sessions
